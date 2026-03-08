@@ -1,0 +1,6 @@
+check_name,severity,rows_checked,failed_count,failed_pct,notes
+duplicate_flight_instance_by_composite_key,CRITICAL,5819079,0,0.0,"Composite key: ['YEAR', 'MONTH', 'DAY', 'AIRLINE', 'FLIGHT_NUMBER', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'SCHEDULED_DEPARTURE']"
+departure_delay_too_late,HIGH,5819079,32,0.00055,> 1440 minutes
+arrival_delay_too_late,HIGH,5819079,32,0.00055,> 1440 minutes
+arrival_delay_too_early,MEDIUM,5819079,392,0.006736,< -60 minutes
+departure_delay_too_early,MEDIUM,5819079,3,5.2e-05,< -60 minutes

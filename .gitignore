@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Anaconda files
+anaconda_projects/
+
+# Large raw dataset
+Data/Raw/flights.csv
+
+# Generated dataset
+
+Data/Processed/fact_flights.parquet
+Data/Processed/fact_flights_buck_up.parquet
+
+
+
+# OS junk
+.DS_Store
+Thumbs.db
