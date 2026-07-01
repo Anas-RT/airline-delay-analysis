@@ -1,9 +1,18 @@
-# Python cache
+﻿# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Notebook checkpoints
+# Notebook checkpoints and backups
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
+*backup*.ipynb
+*Backup*.ipynb
+*buckup*.ipynb
+*Buckup*.ipynb
+*copy*.ipynb
+*Copy*.ipynb
+*-checkpoint*.ipynb
 
 # Virtual environments
 .venv/
@@ -16,13 +25,17 @@ anaconda_projects/
 # Large raw dataset
 Data/Raw/flights.csv
 
-# Generated dataset
-
+# Large generated datasets
 Data/Processed/fact_flights.parquet
 Data/Processed/fact_flights_buck_up.parquet
+Data/Processed/*.tmp
 
-
+# Local dashboard copies and design scratch files
+Powerbi/*Copy*.pbix
+Powerbi/*copy*.pbix
+Resources/
 
 # OS junk
 .DS_Store
 Thumbs.db
+Desktop.ini

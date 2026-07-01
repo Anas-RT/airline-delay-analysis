@@ -1,0 +1,7 @@
+delay_driver_code,delay_driver_display,sort_order
+LATE_AIRCRAFT_DELAY,Late Aircraft,1
+AIRLINE_DELAY,Airline,2
+AIR_SYSTEM_DELAY,Air System,3
+WEATHER_DELAY,Weather,4
+SECURITY_DELAY,Security,5
+Unattributed,Unattributed,6

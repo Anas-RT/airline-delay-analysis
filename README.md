@@ -1,174 +1,177 @@
-# Airline Operational Performance Analytics
+﻿# Airline Operational Performance Analytics
 
-**Portfolio project** | Operational Data Analyst case study
+**Portfolio project** | Data pipeline, analytics engineering, and operational reporting case study
 
-Dataset source: [Maven Analytics — Airline Flight Delays](https://mavenanalytics.io/data-playground/airline-flight-delays)
+Dataset source: [Maven Analytics - Airline Flight Delays](https://mavenanalytics.io/data-playground/airline-flight-delays)
 
 ## Project Objective
 
-This project analyses operational flight data to explore delay patterns, investigate root causes, and design a small reporting workflow from raw data through to a Power BI dashboard.  
-The goal is to validate the dataset and define operational KPIs for reliable performance reporting.
+This project takes raw airline operations data through a small analytics workflow: validation, cleaning, modelling, KPI definition, SQL analysis, and Power BI reporting.
+
+The goal is to show how messy operational data can be turned into trustworthy, documented datasets that support both downstream analysis and business reporting.
+
+## Engineering and Analytics Focus
+
+This project is intentionally framed as both a data engineering and data analyst portfolio piece:
+
+- **Data engineering focus:** controlled loading, data quality checks, reference-data cleanup, reproducible transformations, parquet outputs, and dimensional modelling.
+- **Analytics focus:** operational KPI design, SQL investigation, Power BI reporting, and clear interpretation of delay and disruption patterns.
 
 ## Dataset Overview
 
-- **Primary dataset:** `data/raw/flights.csv` (~592 MB, ~5.8M flight records)
+- **Primary dataset:** `Data/Raw/flights.csv` (~592 MB, ~5.8M flight records, not tracked in Git)
 - **Supporting lookups:** `airlines.csv`, `airports.csv`, `cancellation_codes.csv`
 - **Granularity:** one row per scheduled flight instance
 - **Composite identity key:** `YEAR`, `MONTH`, `DAY`, `AIRLINE`, `FLIGHT_NUMBER`, `ORIGIN_AIRPORT`, `DESTINATION_AIRPORT`, `SCHEDULED_DEPARTURE`
 
 ## Project Structure
 
-| Step | Notebook                                                   | Purpose                           |
-| ---- | ---------------------------------------------------------- | --------------------------------- |
-| 1    | `01 — Load_profile.ipynb`                                  | Data validation and profiling     |
-| 2    | `02 — Curated Operational Dataset + KPI Foundations.ipynb` | Star schema model and KPI flags   |
-| 3    | Power BI                                                   | Operational performance dashboard |
+| Step | Notebook | Purpose |
+| ---- | -------- | ------- |
+| 1 | `01 - Load_profile.ipynb` | Load control, data profiling, and quality validation |
+| 2 | `02 - Curated Operational Dataset + KPI Foundations.ipynb` | Curated model, KPI flags, reference cleanup, and star schema outputs |
+| 3 | `SQL Analytical Layer.ipynb` | SQL-style analysis over the curated model |
+| 4 | Power BI | Example dashboard page and reporting roadmap |
 
-## Step 1: Data Quality Validation
+## Pipeline Summary
+
+### Step 1: Data Quality Validation
 
 Controlled loading and validation checks:
 
 - Explicit dtype control via `DTYPE_MAP` (`Int8`/`Int16`/`Int32` + `category`)
 - Standardised result recording via `DQ_RESULTS` and `add_dq_result()`
-- Checks for identity integrity, cancellation consistency, delay sanity, and time-delay coherence
-- Issue sampling into `issues_samples.csv`
+- Identity integrity checks using the composite flight key
+- Cancellation consistency checks across `CANCELLED` and `CANCELLATION_REASON`
+- Delay sanity checks and time-delay coherence checks
+- Issue sampling into `issues_samples.csv` for reviewable data quality evidence
 
-## Key Findings
+### Step 2: Curated Analytical Model
 
-- **Duplicate identity check:** 0 duplicates using the composite key
-- **Cancellation integrity:** `CANCELLED` aligns with `CANCELLATION_REASON` (0 inconsistencies)
-- **Null pattern behaviour:** operationally consistent across schedule/actual fields
-- **Extreme delays:** rare but operationally plausible; flagged for transparency
-- **Nuance:** some cancelled flights have `DEPARTURE_TIME` populated but no `ARRIVAL_TIME`
-- **Time vs delay consistency:** mismatch rate of 0.0151%, concentrated in extreme multi-day delay scenarios
+Star schema design for Power BI and downstream analysis:
 
-## Step 2: Curated Analytical Model
+- **Fact table:** `fact_flights.parquet` (generated output, not tracked)
+- **Dimensions:** `dim_airlines`, `dim_airports`, `dim_cancellation_codes`, `dim_delay_driver`
+- **Quality outputs:** `dq_summary.csv`, `issues_samples.csv`, `unmatched_dot_airports.csv`
 
-Star schema design for Power BI:
+### Step 3: SQL Analytical Layer
 
-- **Fact table:** `fact_flights.parquet`
-- **Dimensions:** `dim_airlines.csv`, `dim_airports.csv`, `dim_cancellation_codes.csv`
+The SQL notebook is used to query the curated model and validate business-facing metrics before dashboarding.
 
-### KPI Framework
+Example analysis areas:
 
-| KPI                           | Definition                                 |
-| ----------------------------- | ------------------------------------------ |
-| On-Time Performance (OTP15) % | `ARRIVAL_DELAY <= 15` for eligible flights |
-| Severe Delay %                | `ARRIVAL_DELAY >= 60` for eligible flights |
-| Cancellation Rate             | `CANCELLED = 1` / all flights              |
-| Operational Disruption %      | Cancelled, diverted, or severely delayed   |
+- network-level delay and cancellation trends
+- airline and airport performance comparisons
+- severe-delay exposure
+- primary delay-driver attribution
+- operational disruption patterns
 
-**Eligibility:** `CANCELLED = 0` AND `DIVERTED = 0`
+## Measures and KPI Definitions
 
-### Derived Features
+These measures are defined to keep the dashboard and SQL analysis consistent.
 
-- `is_otp15_eligible`, `is_on_time_otp15`, `is_delayed_otp15`, `is_severe_delay_sd60`
-- `primary_delay_driver`, `operational_disruption_flag`
-- Time slicing: `scheduled_departure_hour`, `time_band`, `day_of_week`, `month`
+| Measure | Definition | Purpose |
+| ------- | ---------- | ------- |
+| Total Flights | Count of scheduled flight records | Baseline operational volume |
+| Completed Flights | Flights where `CANCELLED = 0` and `DIVERTED = 0` | Eligible base for delay performance |
+| On-Time Performance (OTP15) % | Completed flights with `ARRIVAL_DELAY <= 15` divided by completed flights | Standard punctuality measure |
+| Delay Rate (OTP15) % | Completed flights with `ARRIVAL_DELAY > 15` divided by completed flights | Share of flights arriving more than 15 minutes late |
+| Severe Delay % | Completed flights with `ARRIVAL_DELAY >= 60` divided by completed flights | High-impact delay exposure |
+| Cancellation Rate | Flights with `CANCELLED = 1` divided by total scheduled flights | Cancellation reliability measure |
+| Operational Disruption % | Flights cancelled, diverted, or severely delayed divided by total scheduled flights | Combined disruption indicator |
 
-## Step 3: Power BI Dashboard
+**Eligibility rule:** on-time, delay, and severe-delay measures only use completed flights (`CANCELLED = 0` and `DIVERTED = 0`).
 
-Operational performance dashboard with four pages:
+## Dashboard Status
 
-1. **Executive Overview** — high-level KPIs and trends
-2. **Operational Analysis** — airline/route performance breakdowns
-3. **Delay Severity** — severity distribution and Primary Delay Driver attribution
-4. **Key Insights** — summary of key findings
-
-## Dashboard Overview
+The Power BI report is a work in progress. The current public showcase is the **Executive Overview** page, which demonstrates the intended KPI layout and reporting direction.
 
 ### Executive Overview
 
 ![Executive Overview](./Docs/Screenshots/executive_overview.png)
 
-### Operational Analysis
+### Dashboard Roadmap
 
-![Operational Analysis](./Docs/Screenshots/operational_analysis.png)
+The remaining report pages are intentionally left as future improvements:
 
-### Delay Severity
+- **Operational Analysis:** airline, airport, route, and time-of-day performance breakdowns
+- **Delay Severity:** severity bands, severe-delay concentration, and delay-driver attribution
+- **Key Insights:** final narrative page tying the dashboard findings together
 
-![Delay Severity](./Docs/Screenshots/delay_severity.png)
+## Key Findings So Far
 
-## Key Insights
-
-Based on the Power BI analysis:
+Based on the curated model and initial dashboard analysis:
 
 - **Overall On-Time Performance (OTP15): 82.1%**  
-  Roughly **1 in 5 flights arrive more than 15 minutes late**, indicating delays remain a regular operational issue across the network.
+  Roughly 1 in 5 completed flights arrive more than 15 minutes late.
 
 - **Operational Disruption Rate: 7.4%**  
-  This includes cancelled, diverted, and severely delayed flights. While smaller than overall delay rates, these events represent the most operationally disruptive cases.
+  Cancelled, diverted, and severely delayed flights are a smaller share of total activity but represent the most operationally disruptive cases.
 
 - **Severe Delays Are Concentrated in Certain Airlines**  
-  Severe delay exposure varies significantly across airlines.  
-  For example, **Spirit Airlines (10.6%)** and **Frontier Airlines (9.1%)** show higher severe delay rates compared with the network average.
+  Severe delay exposure varies significantly across airlines, with some carriers showing materially higher severe-delay rates than the network average.
 
 - **Late Aircraft Delay Is the Dominant Root Cause**  
-  The majority of severe delays are attributed to **Late Aircraft Delay**, suggesting that delays often propagate through aircraft rotations rather than being caused by external factors.
+  Severe delays are strongly associated with late-arriving aircraft, suggesting that delay propagation through aircraft rotations is a major operational factor.
 
 - **Major Hub Airports Generate the Largest Disruption Volumes**  
-  Airports such as **Chicago O'Hare, Dallas/Fort Worth, and Hartsfield-Jackson Atlanta** account for the highest volumes of disruption events. These hubs handle large traffic volumes, increasing the likelihood of congestion and delay propagation.
+  High-volume hub airports account for the largest absolute disruption counts, reflecting congestion and network-scale operational pressure.
 
-- **Seasonal Variation in Performance**  
-  On-time performance dips during peak summer months and improves in early autumn, which likely reflects higher travel demand and operational pressure during peak periods.
+## Data Quality Findings
+
+- **Duplicate identity check:** 0 duplicates using the composite key
+- **Cancellation integrity:** `CANCELLED` aligns with `CANCELLATION_REASON` (0 inconsistencies)
+- **Null pattern behaviour:** operationally consistent across scheduled and actual flight fields
+- **Extreme delays:** rare but operationally plausible, flagged for transparency rather than removed
+- **Time vs delay consistency:** mismatch rate of 0.0151%, concentrated in extreme multi-day delay scenarios
+- **Airport identifier cleanup:** DOT numeric airport identifiers were partially mapped to IATA codes using deterministic name and state matching
 
 ## Data Quality Outputs
 
-| File                                | Description                                                                     |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| `data/processed/dq_summary.csv`     | Validation log with check name, severity, rows checked, failed count, and notes |
-| `data/processed/issues_samples.csv` | Sampled investigation records labelled by `issue_type`                          |
+| File | Description |
+| ---- | ----------- |
+| `Data/Processed/dq_summary.csv` | Validation log with check name, severity, rows checked, failed count, and notes |
+| `Data/Processed/issues_samples.csv` | Sample investigation records labelled by issue type |
+| `Data/Processed/unmatched_dot_airports.csv` | Remaining airport identifiers requiring manual/alias review |
+
+## Repository Notes
+
+Large generated datasets are intentionally excluded from Git. The repository focuses on notebooks, documentation, small reference outputs, and dashboard screenshots.
+
+The raw `flights.csv` file and generated fact table are not tracked because of file size.
 
 ## How to Run
 
-1. Open the project in VS Code
-2. Activate your Python environment
-3. Run `Notebooks/01 — Load_profile.ipynb` (Restart Kernel and Run All)
-4. Run `Notebooks/02 — Curated Operational Dataset + KPI Foundations.ipynb`
-5. Confirm outputs in `data/processed/`
-6. Open `Powerbi/` dashboard for visualisation
-
-## Design Rationale
-
-The project validates record identity, cancellation fields, delay ranges, and time–delay consistency before building dashboards.  
-This ensures that the Power BI analysis focuses on operational performance rather than underlying data quality issues.
+1. Open the project in VS Code or Jupyter.
+2. Activate a Python environment with `pandas`, `numpy`, and `pyarrow`.
+3. Add the raw Maven dataset to `Data/Raw/`.
+4. Run `Notebooks/01 - Load_profile.ipynb`.
+5. Run `Notebooks/02 - Curated Operational Dataset + KPI Foundations.ipynb`.
+6. Run `Notebooks/SQL Analytical Layer.ipynb` for analytical checks.
+7. Open the Power BI file to view the dashboard draft.
 
 ## Limitations
 
-Some limitations to note:
+- The dashboard is not complete; only the Executive Overview page is currently showcased.
+- The dataset is historical and does not include live operational feeds, weather forecasts, staffing data, or aircraft rotation schedules.
+- Some airport identifiers remain unmatched after deterministic mapping because of naming and alias differences.
+- Delay propagation can be inferred but not fully modelled without aircraft tail-number or rotation data.
 
-- **Airport identifier inconsistencies:**  
-  ~~The raw dataset contains both IATA airport codes and numeric identifiers. Numeric codes were retained but do not have full descriptive metadata.~~  
-  **Update:** This has been partially resolved. A DOT airport lookup was used to create deterministic DOT → IATA mappings using canonical airport name + state matching. 215 of 307 airports were successfully mapped; 92 remain unmatched due to alias naming differences and are documented in `unmatched_dot_airports.csv`. Numeric identifiers were reduced from ~486k to ~141k occurrences in the fact table.
+## Future Improvements
 
-- **Aircraft rotation information is not available:**  
-  Delay propagation through aircraft rotations can be observed indirectly but cannot be fully modelled without aircraft scheduling data.
-
-- **Dashboard visual styling is intentionally simple:**  
-  The Power BI report prioritises analytical clarity over visual design. Layout and formatting improvements are still in progress.
-
-- **Operational scope:**  
-  The dataset represents historical flight records and does not include real-time operational data such as weather forecasts, staffing levels, or airspace constraints.
-
-## What I Would Improve
-
-This project focuses on building a clean analytical baseline rather than a fully polished dashboard.
-
-If I continued working on it, I would mainly focus on:
-
-- improving the visual layout and spacing in Power BI
-- adding more drilldowns (for example route-level or time-of-day analysis)
-- investigating the `(Blank)` airport category more thoroughly
-- adding a small data dictionary for the engineered fields
-- tightening the insight section so each chart clearly answers one question
-
-The goal of those improvements would be to make the report easier to interpret and closer to something used in day-to-day operational reporting.
+- Complete the Operational Analysis dashboard page.
+- Complete the Delay Severity dashboard page.
+- Add a final Key Insights dashboard page.
+- Add a compact data dictionary for engineered fields.
+- Add automated validation tests outside the notebooks.
+- Package the transformation logic into reusable Python scripts.
 
 ## Tools Used
 
 - Python
 - pandas
+- SQL
 - Jupyter Notebook
 - Power BI
 - Parquet
-- Dimensional modelling (star schema)
+- Dimensional modelling
