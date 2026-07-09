@@ -83,13 +83,20 @@ These measures are defined to keep the curated model and dashboard reporting con
 
 **Eligibility rule:** on-time, delay, and severe-delay measures only use completed flights (`CANCELLED = 0` and `DIVERTED = 0`).
 
-## Dashboard Status
+## Power BI Dashboard Status
 
-The Power BI report is a work in progress. The current public showcase is the redesigned **Executive Overview** page, which demonstrates the intended KPI layout and reporting direction.
+The Power BI report is still a work in progress. The current public showcase is the redesigned **Executive Overview** page, which is intended to show the overall structure and reporting direction rather than a finished multi-page dashboard.
 
-### Executive Overview
+### Current Showcase: Executive Overview
 
 ![Executive Overview](./Docs/Screenshots/executive_overview.png)
+
+The Executive Overview page currently includes:
+
+- headline KPI cards for the main operational measures, including total flight volume, on-time performance, severe delays, cancellations, and overall disruption
+- a high-level view of operational performance so the reader can quickly understand the scale and reliability of the network
+- supporting visuals for comparing performance across key operational dimensions such as airline, airport, time, and delay behaviour
+- a layout that is designed as the starting point for a fuller Power BI report, with the remaining pages still to be built out
 
 ### Dashboard Roadmap
 
@@ -178,5 +185,7 @@ The raw `flights.csv` file and generated fact table are not tracked because of f
 - Power BI
 - Parquet
 - Dimensional modelling
+
+
 
 
