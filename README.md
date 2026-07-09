@@ -6,7 +6,7 @@ Dataset source: [Maven Analytics - Airline Flight Delays](https://mavenanalytics
 
 ## Project Objective
 
-This project takes raw airline operations data through a small analytics workflow: validation, cleaning, modelling, KPI definition, and an early Power BI reporting page.
+This project takes raw airline operations data through a small analytics workflow: validation, cleaning, modelling, KPI definition, SQL-based checks, and an early Power BI reporting page.
 
 The goal is to show how messy operational data can be turned into trustworthy, documented datasets that support both downstream analysis and business reporting.
 
@@ -15,7 +15,7 @@ The goal is to show how messy operational data can be turned into trustworthy, d
 This project is intentionally framed as both a data engineering and data analyst portfolio piece:
 
 - **Data engineering focus:** controlled loading, data quality checks, reference-data cleanup, reproducible transformations, parquet outputs, and dimensional modelling.
-- **Analytics focus:** operational KPI design, Power BI reporting, and clear interpretation of delay and disruption patterns. A separate SQL layer is planned but not yet part of the completed workflow.
+- **Analytics focus:** operational KPI design, SQL-based metric validation, Power BI reporting, and clear interpretation of delay and disruption patterns. The SQL layer is now started and will likely continue to expand as more analysis questions are added.
 
 ## Dataset Overview
 
@@ -30,7 +30,7 @@ This project is intentionally framed as both a data engineering and data analyst
 | ---- | -------- | ------- |
 | 1 | `01 - Load_profile.ipynb` | Load control, data profiling, and quality validation |
 | 2 | `02 - Curated Operational Dataset + KPI Foundations.ipynb` | Curated model, KPI flags, reference cleanup, and star schema outputs |
-| 3 | `SQL Analytical Layer.ipynb` | Work in progress; placeholder for future SQL validation and analysis |
+| 3 | `SQL Analytical Layer.ipynb` | Initial DuckDB/SQL layer for KPI validation and airline performance analysis |
 | 4 | Power BI | Example dashboard page and reporting roadmap |
 
 ## Pipeline Summary
@@ -54,17 +54,18 @@ Star schema design for Power BI and downstream analysis:
 - **Dimensions:** `dim_airlines`, `dim_airports`, `dim_cancellation_codes`, `dim_delay_driver`
 - **Quality outputs:** `dq_summary.csv`, `issues_samples.csv`, `unmatched_dot_airports.csv`
 
-### Step 3: SQL Analytical Layer (Work in Progress)
+### Step 3: SQL Analytical Layer
 
-`SQL Analytical Layer.ipynb` is currently a placeholder and is not yet used in the completed analysis workflow.
+`SQL Analytical Layer.ipynb` now adds a DuckDB-based SQL layer over the curated fact and dimension tables. The current version focuses on verifying core KPIs directly from the model and producing an airline performance scorecard.
 
-Planned SQL analysis areas:
+Current SQL coverage:
 
-- network-level delay and cancellation trends
-- airline and airport performance comparisons
-- severe-delay exposure
-- primary delay-driver attribution
-- operational disruption patterns
+- schema inspection for the curated fact table and dimensions
+- fleet-level KPI checks for OTP15, average arrival delay, severe delay rate, cancellation rate, and operational disruption rate
+- direct SQL validation of KPI flags created in the modelling step
+- airline-level performance comparison across volume, punctuality, delay severity, cancellation, and disruption metrics
+
+The SQL layer is intentionally still open-ended. More queries are likely to be added for route analysis, airport-level disruption, delay-driver breakdowns, and time-based trends.
 
 ## Measures and KPI Definitions
 
@@ -147,20 +148,20 @@ The raw `flights.csv` file and generated fact table are not tracked because of f
 3. Add the raw Maven dataset to `Data/Raw/`.
 4. Run `Notebooks/01 - Load_profile.ipynb`.
 5. Run `Notebooks/02 - Curated Operational Dataset + KPI Foundations.ipynb`.
-6. Optional: review `Notebooks/SQL Analytical Layer.ipynb`, which is currently a work-in-progress placeholder.
+6. Run or review `Notebooks/SQL Analytical Layer.ipynb` for SQL-based KPI checks and the airline performance scorecard.
 7. Open the Power BI file to view the dashboard draft.
 
 ## Limitations
 
 - The dashboard is not complete; only the redesigned Executive Overview page is currently showcased.
-- The SQL analytical layer is not complete yet and is not used as evidence for the current findings.
+- The SQL analytical layer is an initial version; it validates core KPIs and airline performance, but does not yet cover every planned route, airport, delay-driver, or time-trend question.
 - The dataset is historical and does not include live operational feeds, weather forecasts, staffing data, or aircraft rotation schedules.
 - Some airport identifiers remain unmatched after deterministic mapping because of naming and alias differences.
 - Delay propagation can be inferred but not fully modelled without aircraft tail-number or rotation data.
 
 ## Future Improvements
 
-- Build out the SQL analytical layer for validation and repeatable metric checks.
+- Expand the SQL analytical layer with route-level, airport-level, delay-driver, and time-trend queries.
 - Complete the Operational Analysis dashboard page.
 - Complete the Delay Severity dashboard page.
 - Add a final Key Insights dashboard page.
@@ -177,4 +178,5 @@ The raw `flights.csv` file and generated fact table are not tracked because of f
 - Power BI
 - Parquet
 - Dimensional modelling
+
 
