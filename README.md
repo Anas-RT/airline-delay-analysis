@@ -30,7 +30,7 @@ This project is intentionally framed as both a data engineering and data analyst
 | ---- | -------- | ------- |
 | 1 | `01 - Load_profile.ipynb` | Load control, data profiling, and quality validation |
 | 2 | `02 - Curated Operational Dataset + KPI Foundations.ipynb` | Curated model, KPI flags, reference cleanup, and star schema outputs |
-| 3 | `SQL Analytical Layer.ipynb` | Initial DuckDB/SQL layer for KPI validation and airline performance analysis |
+| 3 | `03 — SQL Analytical Layer.ipynb` | Initial DuckDB/SQL layer for KPI validation and airline performance analysis |
 | 4 | Power BI | Example dashboard page and reporting roadmap |
 
 ## Pipeline Summary
@@ -56,7 +56,7 @@ Star schema design for Power BI and downstream analysis:
 
 ### Step 3: SQL Analytical Layer
 
-`SQL Analytical Layer.ipynb` now adds a DuckDB-based SQL layer over the curated fact and dimension tables. The current version focuses on verifying core KPIs directly from the model and producing an airline performance scorecard.
+`03 — SQL Analytical Layer.ipynb` now adds a DuckDB-based SQL layer over the curated fact and dimension tables. The current version focuses on verifying core KPIs directly from the model and producing an airline performance scorecard.
 
 Current SQL coverage:
 
@@ -155,7 +155,7 @@ The raw `flights.csv` file and generated fact table are not tracked because of f
 3. Add the raw Maven dataset to `Data/Raw/`.
 4. Run `Notebooks/01 - Load_profile.ipynb`.
 5. Run `Notebooks/02 - Curated Operational Dataset + KPI Foundations.ipynb`.
-6. Run or review `Notebooks/SQL Analytical Layer.ipynb` for SQL-based KPI checks and the airline performance scorecard.
+6. Run or review `Notebooks/03 — SQL Analytical Layer.ipynb` for SQL-based KPI checks and the airline performance scorecard.
 7. Open the Power BI file to view the dashboard draft.
 
 ## Limitations
@@ -185,6 +185,7 @@ The raw `flights.csv` file and generated fact table are not tracked because of f
 - Power BI
 - Parquet
 - Dimensional modelling
+
 
 
 
